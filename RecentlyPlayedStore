@@ -1,0 +1,51 @@
+import java.util.*;
+
+public class RecentlyPlayedStore {
+    private final int capacity;
+    private final Map<String, LinkedList<String>> store;
+
+    public RecentlyPlayedStore(int capacity) {
+        this.capacity = capacity;
+        this.store = new HashMap<>();
+    }
+
+    public void addSong(String user, String song) {
+        LinkedList<String> songs = store.getOrDefault(user, new LinkedList<>());
+        songs.remove(song); // Remove the song if it already exists
+        songs.addFirst(song); // Add the song at the beginning
+        if (songs.size() > capacity) {
+            songs.removeLast(); // Remove the least recently played song
+        }
+        store.put(user, songs);
+    }
+
+    public List<String> getRecentlyPlayed(String user) {
+        LinkedList<String> songs = store.getOrDefault(user, new LinkedList<>());
+        return new ArrayList<>(songs);
+    }
+
+    public static void main(String[] args) {
+        RecentlyPlayedStore store = new RecentlyPlayedStore(3);
+
+        // User 1 plays songs
+        store.addSong("User1", "S1");
+        store.addSong("User1", "S2");
+        store.addSong("User1", "S3");
+        System.out.println(store.getRecentlyPlayed("User1")); // [S3, S2, S1]
+
+        // User 1 plays another song
+        store.addSong("User1", "S4");
+        System.out.println(store.getRecentlyPlayed("User1")); // [S4, S3, S2]
+
+        // User 1 plays S2 again
+        store.addSong("User1", "S2");
+        System.out.println(store.getRecentlyPlayed("User1")); // [S2, S4, S3]
+
+        // User 2 plays songs
+        store.addSong("User2", "S5");
+        System.out.println(store.getRecentlyPlayed("User2")); // [S5]
+
+        // User 1's playlist remains unchanged
+        System.out.println(store.getRecentlyPlayed("User1")); // [S2, S4, S3]
+    }
+}
